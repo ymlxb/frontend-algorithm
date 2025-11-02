@@ -2,25 +2,18 @@
 
 let arr = [4,1,6,9,3,2,8,7]
 
-function compare (a,b){
-  if(a > b) return true
-  else return false
-}
-
-function exchange (arr,a,b){
-  let temp = arr[a]
-  arr[a] = arr[b]
-  arr[b] = temp
-}
-
-function sort (arr){
-  for(let i =0;i < arr.length;i++){
-    for(let j = 0;j < arr.length-1;j++){
-    if(compare(arr[j],arr[j+1])){
-      exchange(arr,j,j+1)
-    }
+function quickSort(arr){
+  if(arr == null || arr.length == 0) return []
+  let leader =arr[0]
+  let left = []
+  let right = []
+  for(let i = 1;i < arr.length;i++){
+    if(arr[i] < leader) left.push(arr[i])
+      else right.push(arr[i])
   }
-  }
+  left = quickSort(left)
+  right = quickSort(right)
+  left.push(leader)
+  return left.concat(right)
 }
-sort(arr)
-console.log(arr);
+console.log(quickSort(arr));
