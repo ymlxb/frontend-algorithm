@@ -66,76 +66,76 @@
 
 // 发布订阅模式
 
-const EventBus = {
-  events: {},
+// const EventBus = {
+//   events: {},
 
-  on(event, fn) {
-    (this.events[event] || (this.events[event] = [])).push(fn)
-  },
+//   on(event, fn) {
+//     (this.events[event] || (this.events[event] = [])).push(fn)
+//   },
 
-  emit(event, ...args) {
-    this.events[event]?.forEach(fn => fn(...args))
-  },
+//   emit(event, ...args) {
+//     this.events[event]?.forEach(fn => fn(...args))
+//   },
 
-  off(event, fn) {
-    this.events[event] = this.events[event]?.filter(f => f !== fn)
-  }
-}
+//   off(event, fn) {
+//     this.events[event] = this.events[event]?.filter(f => f !== fn)
+//   }
+// }
 
-console.log('=== 1. 基础订阅发布测试 ===')
+// console.log('=== 1. 基础订阅发布测试 ===')
 
-// 测试 1: 基本订阅发布
-EventBus.on('message', (msg) => {
-  console.log('监听器1收到消息:', msg)
-})
+// // 测试 1: 基本订阅发布
+// EventBus.on('message', (msg) => {
+//   console.log('监听器1收到消息:', msg)
+// })
 
-EventBus.on('message', (msg) => {
-  console.log('监听器2收到消息:', msg)
-})
+// EventBus.on('message', (msg) => {
+//   console.log('监听器2收到消息:', msg)
+// })
 
-console.log('发布消息:')
-EventBus.emit('message', 'Hello World!')
-// 预期输出:
-// 监听器1收到消息: Hello World!
-// 监听器2收到消息: Hello World!
+// console.log('发布消息:')
+// EventBus.emit('message', 'Hello World!')
+// // 预期输出:
+// // 监听器1收到消息: Hello World!
+// // 监听器2收到消息: Hello World!
 
-// 测试 2: 传递多个参数
-EventBus.on('user', (name, age, city) => {
-  console.log(`用户信息: ${name}, ${age}岁, 来自${city}`)
-})
+// // 测试 2: 传递多个参数
+// EventBus.on('user', (name, age, city) => {
+//   console.log(`用户信息: ${name}, ${age}岁, 来自${city}`)
+// })
 
-console.log('\n发布带多个参数的事件:')
-EventBus.emit('user', '张三', 25, '北京')
-// 预期输出: 用户信息: 张三, 25岁, 来自北京
-console.log('\n=== 2. 取消订阅测试 ===')
+// console.log('\n发布带多个参数的事件:')
+// EventBus.emit('user', '张三', 25, '北京')
+// // 预期输出: 用户信息: 张三, 25岁, 来自北京
+// console.log('\n=== 2. 取消订阅测试 ===')
 
-// 定义要取消的回调函数
-const callbackToRemove = (msg) => {
-  console.log('这个回调会被移除:', msg)
-}
+// // 定义要取消的回调函数
+// const callbackToRemove = (msg) => {
+//   console.log('这个回调会被移除:', msg)
+// }
 
-const anotherCallback = (msg) => {
-  console.log('这个回调会保留:', msg)
-}
+// const anotherCallback = (msg) => {
+//   console.log('这个回调会保留:', msg)
+// }
 
-// 订阅事件
-EventBus.on('test', callbackToRemove)
-EventBus.on('test', anotherCallback)
+// // 订阅事件
+// EventBus.on('test', callbackToRemove)
+// EventBus.on('test', anotherCallback)
 
-console.log('第一次发布:')
-EventBus.emit('test', '第一次触发')
-// 预期输出:
-// 这个回调会被移除: 第一次触发
-// 这个回调会保留: 第一次触发
+// console.log('第一次发布:')
+// EventBus.emit('test', '第一次触发')
+// // 预期输出:
+// // 这个回调会被移除: 第一次触发
+// // 这个回调会保留: 第一次触发
 
-// 取消订阅特定的回调
-EventBus.off('test', callbackToRemove)
+// // 取消订阅特定的回调
+// EventBus.off('test', callbackToRemove)
 
-console.log('取消后再次发布:')
-EventBus.emit('test', '第二次触发')
-// 预期输出:
-// 这个回调会保留: 第二次触发
-// (注意: "这个回调会被移除" 不会出现)
+// console.log('取消后再次发布:')
+// EventBus.emit('test', '第二次触发')
+// // 预期输出:
+// // 这个回调会保留: 第二次触发
+// // (注意: "这个回调会被移除" 不会出现)
 
 // const PENDING = 'pengding';
 // const RESOLVE = 'resolve';
@@ -186,3 +186,43 @@ EventBus.emit('test', '第二次触发')
 // })
 
 // console.log(pro);
+
+
+Promise.myAll = function (proms) {
+  let res, rej;
+  const p = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
+  })
+  let i = 0;
+  let fulfilled = 0;
+  let result = [];
+  for(let prom of proms) {
+    let index = i;
+    i++;
+    Promise.resolve(prom).then((data) => {
+      // 1. 完成的数据汇总搭配最终结果
+      result[index] = data;
+      // 2. 判定是否全部完成
+      fulfilled++;
+      if (fulfilled === i) {
+        res(result);
+      }
+    }, rej)
+  }
+  if (i === 0) {
+    res([]);
+  }
+
+  // resolve();
+  // reject();
+  return p;
+}
+
+Promise.myAll([1, 2, 3, Promise.resolve(123)]).then(res => {
+  console.log(res);
+  
+}, err => {
+  console.log('err:',err);
+  
+})
