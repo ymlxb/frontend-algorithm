@@ -227,30 +227,61 @@
   
 // })
 
-Promise.myAllSettled = function(promises) {
-  // 将非 Promise 值转换为 Promise
-  const wrappedPromises = promises.map(p => 
-    Promise.resolve(p)
-      .then(value => ({
-        status: 'fulfilled',
-        value
-      }))
-      .catch(reason => ({
-        status: 'rejected',
-        reason
-      }))
-  )
+// Promise.myAllSettled = function(promises) {
+//   // 将非 Promise 值转换为 Promise
+//   const wrappedPromises = promises.map(p => 
+//     Promise.resolve(p)
+//       .then(value => ({
+//         status: 'fulfilled',
+//         value
+//       }))
+//       .catch(reason => ({
+//         status: 'rejected',
+//         reason
+//       }))
+//   )
   
-  return Promise.all(wrappedPromises)
+//   return Promise.all(wrappedPromises)
+// }
+
+// const test1 = [
+//   Promise.resolve(1),
+//   Promise.reject(2),
+//   Promise.resolve(3)
+// ]
+
+// Promise.myAllSettled(test1)
+//   .then(results => {
+//     console.log(results)
+//   })
+
+Promise.race = function (proms) {
+  return new Promise((resolve, reject) => {
+    for (let prom of proms) {
+      Promise.resolve(prom).then(resolve, reject);
+    }
+  })
 }
 
-const test1 = [
-  Promise.resolve(1),
-  Promise.reject(2),
-  Promise.resolve(3)
-]
+// 测试1: 第一个Promise最先完成（成功）
+const test1 = () => {
+  console.log('测试1: 第一个Promise最快成功');
+  
+  const fast = new Promise(resolve => 
+    setTimeout(() => resolve('fast'), 100)
+  );
+  
+  const slow = new Promise(resolve => 
+    setTimeout(() => resolve('slow'), 500)
+  );
+  
+  Promise.race([fast, slow])
+    .then(result => {
+      console.log('✓ 结果:', result, '预期: fast');
+    })
+    .catch(err => {
+      console.log('✗ 不应该失败:', err);
+    });
+};
 
-Promise.myAllSettled(test1)
-  .then(results => {
-    console.log(results)
-  })
+test1();
