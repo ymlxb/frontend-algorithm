@@ -255,33 +255,105 @@
 //     console.log(results)
 //   })
 
-Promise.race = function (proms) {
-  return new Promise((resolve, reject) => {
-    for (let prom of proms) {
-      Promise.resolve(prom).then(resolve, reject);
+// Promise.race = function (proms) {
+//   return new Promise((resolve, reject) => {
+//     for (let prom of proms) {
+//       Promise.resolve(prom).then(resolve, reject);
+//     }
+//   })
+// }
+
+// // 测试1: 第一个Promise最先完成（成功）
+// const test1 = () => {
+//   console.log('测试1: 第一个Promise最快成功');
+  
+//   const fast = new Promise(resolve => 
+//     setTimeout(() => resolve('fast'), 100)
+//   );
+  
+//   const slow = new Promise(resolve => 
+//     setTimeout(() => resolve('slow'), 500)
+//   );
+  
+//   Promise.race([fast, slow])
+//     .then(result => {
+//       console.log('✓ 结果:', result, '预期: fast');
+//     })
+//     .catch(err => {
+//       console.log('✗ 不应该失败:', err);
+//     });
+// };
+
+// test1();
+
+// function debounce(fn, delay) {
+//   let timerId;
+//   return () => {
+//     clearTimeout(timerId);
+//     timerId = setTimeout(() => {
+//       fn();
+//     },delay);
+//   }
+// }
+
+// let count = 0;
+// const log = () => {
+//   count++;
+//   console.log(`函数执行第 ${count} 次，时间:`, new Date().toLocaleTimeString());
+// };
+
+// // 创建防抖函数
+// const debouncedLog = debounce(log, 1000);
+
+// // 快速连续调用
+// console.log('快速连续调用5次:');
+// debouncedLog();
+// debouncedLog();
+// debouncedLog();
+// debouncedLog();
+// debouncedLog();
+
+// // 等待结果
+// setTimeout(() => {
+//   console.log('1.5秒后 count =', count); // 应该是 1
+// }, 1500);
+
+function throttle(fn, wait) {
+  let lastTime = null;
+  return function(...arges) {
+    const now = Date.now();
+    if (lastTime === null || now - lastTime > wait) {
+      // 技能之前没用过，或者技能 CD 已好
+      fn.apply(this, arges);
+      lastTime = now; 
     }
-  })
+  }
 }
 
-// 测试1: 第一个Promise最先完成（成功）
-const test1 = () => {
-  console.log('测试1: 第一个Promise最快成功');
-  
-  const fast = new Promise(resolve => 
-    setTimeout(() => resolve('fast'), 100)
-  );
-  
-  const slow = new Promise(resolve => 
-    setTimeout(() => resolve('slow'), 500)
-  );
-  
-  Promise.race([fast, slow])
-    .then(result => {
-      console.log('✓ 结果:', result, '预期: fast');
-    })
-    .catch(err => {
-      console.log('✗ 不应该失败:', err);
-    });
+// 创建测试函数
+let count = 0;
+const log = () => {
+  count++;
+  console.log(`函数第 ${count} 次执行，时间:`, new Date().toLocaleTimeString());
 };
 
-test1();
+// 创建节流函数（1秒内只能执行一次）
+const throttledLog = throttle(log, 1000);
+
+console.log('快速连续调用10次（1秒内）:');
+const startTime = Date.now();
+for (let i = 0; i < 10; i++) {
+  throttledLog();
+}
+
+// 等待查看结果
+setTimeout(() => {
+  console.log(`1秒后 count = ${count} (应该为1)`);
+  
+  console.log('\n2秒后再调用一次:');
+  throttledLog();
+  
+  setTimeout(() => {
+    console.log(`再过0.5秒 count = ${count} (应该为2)`);
+  }, 500);
+}, 1000);
